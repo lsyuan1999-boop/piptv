@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(env)",
+      "Read(//c/Users/Administrator/.claude/**)",
+      "Read(//c/Users/Administrator/**)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}
