@@ -17,6 +17,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
+  // 检查 Blob token 是否存在
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    console.error("BLOB_READ_WRITE_TOKEN 未设置");
+    return NextResponse.json(
+      { error: "服务器配置错误：缺少 Blob 存储令牌" },
+      { status: 500 },
+    );
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
