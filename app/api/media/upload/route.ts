@@ -48,9 +48,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 上传到 Vercel Blob
+    // 上传到 Vercel Blob（存储配置为私有模式，不设置 access 参数）
     const blob = await put(file.name, file, {
-      access: "public",
       addRandomSuffix: true,
     });
 
