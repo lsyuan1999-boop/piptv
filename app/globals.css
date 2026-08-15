@@ -1,20 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafaf8;
+  --foreground: #1f1d1a;
+  /* 手写体：霞鹜文楷（layout.tsx 引入，按 unicode-range 分包，只下载用到的那几个）。
+     它的 Latin 和中文在同一套字形里，所以中英混排是同一种笔迹。 */
+  --font-hand: "LXGW WenKai Screen", "LXGW WenKai", "Chalkboard SE",
+    "Comic Sans MS", "Yuanti SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-hand: var(--font-hand);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #131113;
     --foreground: #ededed;
   }
 }
@@ -22,5 +26,45 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* 整站默认手写体 —— 之前这里是黑体，只有几个标题挂了 --font-hand，
+     所以页面大部分文字看不出手写感。 */
+  font-family: var(--font-hand);
+  /* 关掉横向滚动，卡片放大动画不会撑出滚动条 */
+  overflow-x: hidden;
+}
+
+/* 管理员选的背景预设。用 data 属性挂在最外层容器上，
+   自定义背景图存在时不加这个属性，由 inline style 接管。 */
+[data-themed-bg] {
+  background: var(--bg-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-themed-bg] {
+    background: var(--bg-dark);
+  }
+}
+
+/* 卡片底色。深色模式是媒体查询而不是 class，服务端渲染时判断不了，
+   所以两套色都由卡片挂成变量，这里选用哪一套。
+   rough.js 的填充要走 style 而不是 fill 属性，SVG 属性不认 var()。 */
+[data-card-surface] {
+  --card-surface: var(--surface-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-card-surface] {
+    --card-surface: var(--surface-dark);
+  }
+}
+
+/* 尊重系统的「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
