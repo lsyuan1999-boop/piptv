@@ -27,6 +27,7 @@
 shot.png
 shot-*.png
 backup-*.json
+media-backup/
 
 # debug
 npm-debug.log*
