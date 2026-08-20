@@ -25,6 +25,7 @@
 *.pem
 .devlog.txt
 shot.png
+shot-*.png
 backup-*.json
 
 # debug

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Media } from "@/lib/schema";
+import { compressImage, formatBytes } from "@/lib/compress";
 
 export function MediaPicker({
   value,
@@ -14,6 +15,8 @@ export function MediaPicker({
   const [library, setLibrary] = useState<Media[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** 压缩效果提示，上传成功后短暂显示 */
+  const [note, setNote] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -44,10 +47,15 @@ export function MediaPicker({
 
     setError(null);
     setUploading(true);
+    setNote(null);
 
     try {
+      // 先在浏览器里压小再传：原图动辄几 MB，存进去之后每次取图都要为它买单，
+      // 国内线路拉大图还会让 next/image 超时变裂图
+      const { file: upload, originalSize } = await compressImage(file);
+
       const fd = new FormData();
-      fd.set("file", file);
+      fd.set("file", upload);
       const res = await fetch("/api/media/upload", {
         method: "POST",
         body: fd,
@@ -61,6 +69,11 @@ export function MediaPicker({
       const data = await res.json();
       setLibrary((prev) => [data.media, ...prev]);
       onChange(data.media.url);
+      if (upload.size < originalSize) {
+        setNote(
+          `已压缩：${formatBytes(originalSize)} → ${formatBytes(upload.size)}`,
+        );
+      }
       setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "上传失败");
@@ -107,6 +120,13 @@ export function MediaPicker({
       >
         {value ? "换一张" : "选择海报图"}
       </button>
+
+      {/* 压缩结果留在弹窗关掉之后也看得见，让人知道图被处理过 */}
+      {note && (
+        <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-400">
+          ✓ {note}
+        </p>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
